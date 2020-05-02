@@ -3,9 +3,12 @@
 FROM nginx:latest
 LABEL maintainer "Eric Mikulin"
 
-RUN apt-get update -y && apt-get install -y rsync
+RUN apt-get update -y && apt-get install -y rsync cron rsyslog
 
 COPY nginx.conf /etc/nginx/
 COPY toasted_mirrors_sync.sh /etc/cron.hourly/
+COPY entrypoint.sh /
 
 VOLUME /usr/share/nginx/html/mirrors
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
