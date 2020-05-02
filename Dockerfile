@@ -8,7 +8,7 @@ RUN apt-get update -y && apt-get install -y rsync cron rsyslog
 RUN rm -rf /usr/share/nginx/html/index.html
 
 COPY nginx.conf /etc/nginx/
-COPY toasted_mirrors_sync.sh /etc/cron.hourly/
+COPY toasted_mirrors_sync.sh /etc/cron.hourly/toasted_mirrors_sync
 COPY entrypoint.sh /
 
 VOLUME /usr/share/nginx/html/mirrors
