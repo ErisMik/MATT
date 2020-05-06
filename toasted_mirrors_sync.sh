@@ -7,6 +7,13 @@ LOCKFILE=/tmp/rsync-mirrors.lock
 
 LOG_PREFIX="Toasted Mirrors:"
 
+fixpermissions() {
+    echo "$LOG_PREFIX Fix file permissions"
+
+    find "$DESTPATH" -type d -exec chmod 775 {} \;
+    find "$DESTPATH" -type f -exec chmod 644 {} \;
+}
+
 synchronize() {
     echo "$LOG_PREFIX Manjaro sync"
     $RSYNC -rtlvH --delete-after --delay-updates --safe-links rsync://ftp.tsukuba.wide.ad.jp/manjaro/ "$DESTPATH/manjaro"
@@ -17,9 +24,8 @@ synchronize() {
            --exclude "*powerpc.udeb" --exclude "*ppc64el.udeb" --exclude "*s390x.udeb" --exclude "*riscv64.udeb" \
            rsync://ports.ubuntu.com/ubuntu-ports/ "$DESTPATH/ubuntu-ports"
 
-    echo "$LOG_PREFIX Fix file permissions"
-    find "$DESTPATH" -type d -exec chmod 775 {} \;
-    find "$DESTPATH" -type f -exec chmod 644 {} \;
+    # Only need to run these every few days, to reduce disk wear
+    (( RANDOM % 48 == 0 )) && fixpermissions
 }
 
 if [ ! -e "$LOCKFILE" ]
