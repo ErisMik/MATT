@@ -24,6 +24,9 @@ synchronize() {
            --exclude "*powerpc.udeb" --exclude "*ppc64el.udeb" --exclude "*s390x.udeb" --exclude "*riscv64.udeb" \
            rsync://ports.ubuntu.com/ubuntu-ports/ "$DESTPATH/ubuntu-ports"
 
+    echo "$LOG_PREFIX Raspbian sync"
+    $RSYNC -rtlvH --delete-after --delay-updates --safe-links rsync://archive.raspbian.org/archive/raspbian/ "$DESTPATH/raspbian"
+
     # Only need to run these every few days, to reduce disk wear
     (( RANDOM % 48 == 0 )) && fixpermissions
 }
