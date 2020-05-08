@@ -27,8 +27,8 @@ synchronize() {
     echo "$LOG_PREFIX Raspbian sync"
     $RSYNC -rtlvH --delete-after --delay-updates --safe-links rsync://archive.raspbian.org/archive/raspbian/ "$DESTPATH/raspbian"
 
-    # Only need to run these every few days, to reduce disk wear
-    (( RANDOM % 48 == 0 )) && fixpermissions
+    # Only need to run this about once a day, to reduce disk wear
+    (( RANDOM % 24 == 0 )) && fixpermissions
 }
 
 if [ ! -e "$LOCKFILE" ]
