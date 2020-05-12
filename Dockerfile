@@ -1,4 +1,4 @@
-# Mirror All The Things
+# Mirror All The Things Dockerfile
 
 FROM nginx:latest
 LABEL maintainer "Eric Mikulin"
