@@ -25,7 +25,9 @@ synchronize() {
            rsync://ports.ubuntu.com/ubuntu-ports/ "$DESTPATH/ubuntu-ports"
 
     echo "$LOG_PREFIX Raspbian sync"
-    $RSYNC -rtlvH --delete-after --delay-updates --safe-links rsync://archive.raspbian.org/archive/raspbian/ "$DESTPATH/raspbian"
+    # Official Rasbian repo doesn't seem to sit well, using another one
+    # $RSYNC -rtlvH --delete-after --delay-updates --safe-links rsync://archive.raspbian.org/archive/raspbian/ "$DESTPATH/raspbian"
+    $RSYNC -rtlvH --delete-after --delay-updates --safe-links rsync://muug.ca/mirror/raspbian/raspbian/ "$DESTPATH/raspbian"
 
     # Only need to run this about once a day, to reduce disk wear
     (( RANDOM % 24 == 0 )) && fixpermissions
