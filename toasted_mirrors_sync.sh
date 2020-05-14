@@ -1,9 +1,10 @@
 #!/bin/bash
-# Move this script to "/etc/cron.hourly".
 
-DESTPATH="/usr/share/nginx/html/mirrors"
-RSYNC=/usr/bin/rsync
+DESTPATH=/usr/share/nginx/html/mirrors
 LOCKFILE=/tmp/rsync-mirrors.lock
+
+RSYNC=/usr/bin/rsync
+RSYNC_OPTIONS="-rvtlH --delete-after --delay-updates --safe-links --partial --partial-dir=$DESTPATH/.rsyncpartial --temp-dir=$DESTPATH/.rsynctemp"
 
 LOG_PREFIX="Toasted Mirrors:"
 
@@ -16,21 +17,19 @@ fixpermissions() {
 
 synchronize() {
     echo "$LOG_PREFIX Manjaro sync"
-    $RSYNC -rtlvH --delete-after --delay-updates --safe-links rsync://ftp.tsukuba.wide.ad.jp/manjaro/ "$DESTPATH/manjaro"
+    $RSYNC $RSYNC_OPTIONS rsync://ftp.tsukuba.wide.ad.jp/manjaro/ "$DESTPATH/manjaro"
 
     echo "$LOG_PREFIX Ubuntu-ports sync"
-    $RSYNC -rtlvH --delete-after --delay-updates --safe-links \
-           --exclude "*powerpc.deb" --exclude "*ppc64el.deb" --exclude "*s390x.deb" --exclude "*riscv64.deb" \
-           --exclude "*powerpc.udeb" --exclude "*ppc64el.udeb" --exclude "*s390x.udeb" --exclude "*riscv64.udeb" \
-           rsync://ports.ubuntu.com/ubuntu-ports/ "$DESTPATH/ubuntu-ports"
+    $RSYNC $RSYNC_OPTIONS \
+        --exclude "*powerpc.deb" --exclude "*ppc64el.deb" --exclude "*s390x.deb" --exclude "*riscv64.deb" \
+        --exclude "*powerpc.udeb" --exclude "*ppc64el.udeb" --exclude "*s390x.udeb" --exclude "*riscv64.udeb" \
+        rsync://ports.ubuntu.com/ubuntu-ports/ "$DESTPATH/ubuntu-ports"
 
     echo "$LOG_PREFIX Raspbian sync"
-    # Official Rasbian repo doesn't seem to sit well, using another one
-    # $RSYNC -rtlvH --delete-after --delay-updates --safe-links rsync://archive.raspbian.org/archive/raspbian/ "$DESTPATH/raspbian"
-    $RSYNC -rtlvH --delete-after --delay-updates --safe-links rsync://muug.ca/mirror/raspbian/raspbian/ "$DESTPATH/raspbian"
+    $RSYNC $RSYNC_OPTIONS rsync://muug.ca/mirror/raspbian/raspbian/ "$DESTPATH/raspbian"
 
-    # Only need to run this about once a day, to reduce disk wear
-    (( RANDOM % 24 == 0 )) && fixpermissions
+    # Only need to run this every so often
+    (( RANDOM % 6 == 0 )) && fixpermissions
 }
 
 if [ ! -e "$LOCKFILE" ]
