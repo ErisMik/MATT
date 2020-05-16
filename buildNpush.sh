@@ -16,4 +16,4 @@ docker buildx inspect --bootstrap
 docker buildx build . -t itseris/matt --push --platform "linux/amd64,linux/arm64,linux/arm/v7"
 
 # Cleanup
-docker buildx rm mubuilder
+# docker buildx rm mubuilder

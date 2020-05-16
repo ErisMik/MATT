@@ -3,7 +3,7 @@
 FROM nginx:latest
 LABEL maintainer "Eric Mikulin"
 
-RUN apt-get update -y && apt-get install -y rsync cron
+RUN apt-get update -y && apt-get install -y rsync cron vim
 
 RUN rm -rf /usr/share/nginx/html/index.html
 
