@@ -4,7 +4,7 @@ DESTPATH=/usr/share/nginx/html/mirrors
 LOCKFILE=/tmp/rsync-mirrors.lock
 
 RSYNC=/usr/bin/rsync
-RSYNC_OPTIONS="-rvtlH --progress --delete-after --safe-links --temp-dir=$DESTPATH/.rsynctemp"
+RSYNC_OPTIONS="-rvtlH --progress --delay-updates --delete-after --safe-links --temp-dir=$DESTPATH/.rsynctemp"
 
 LOG_PREFIX="Toasted Mirrors:"
 
