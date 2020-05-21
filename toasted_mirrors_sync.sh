@@ -3,20 +3,10 @@
 DESTPATH=/usr/share/nginx/html/mirrors
 LOCKFILE=/tmp/rsync-mirrors.lock
 
+DEBIAN_EXCLUDEFILE=/etc/matt/debian_exclude.txt
+
 RSYNC=/usr/bin/rsync
 RSYNC_OPTIONS="-rvtlH --progress --delay-updates --delete-after --safe-links --temp-dir=$DESTPATH/.rsynctemp"
-
-DEBIAN_IGNORE=(
-    "--exclude '*powerpc.deb' --exclude '*powerpc.udeb'"
-    "--exclude '*ppc64el.deb' --exclude '*ppc64el.udeb'"
-    "--exclude '*s390x.deb' --exclude '*s390x.udeb'"
-    "--exclude '*riscv64.deb' --exclude '*riscv64.udeb'"
-    "--exclude '*i386.deb' --exclude '*i386.udeb'"
-    "--exclude '*mips.deb' --exclude '*mips.udeb'"
-    "--exclude '*mips64el.deb' --exclude '*mips64el.udeb'"
-    "--exclude '*mipsel.deb' --exclude '*mipsel.udeb'"
-    "--exclude '*mipsel.deb' --exclude '*mipsel.udeb'"
-)
 
 LOG_PREFIX="Toasted Mirrors:"
 
@@ -34,7 +24,7 @@ synchronize() {
     $cmd
 
     echo "$LOG_PREFIX Ubuntu-ports sync"
-    cmd="$RSYNC $RSYNC_OPTIONS ${DEBIAN_IGNORE[*]} rsync://ports.ubuntu.com/ubuntu-ports/ $DESTPATH/ubuntu-ports"
+    cmd="$RSYNC $RSYNC_OPTIONS --exclude-from=$DEBIAN_EXCLUDEFILE rsync://ports.ubuntu.com/ubuntu-ports/ $DESTPATH/ubuntu-ports"
     echo "$cmd" && sleep 2
     $cmd
 
@@ -49,7 +39,7 @@ synchronize() {
     $cmd
 
     echo "$LOG_PREFIX Debian Sync"
-    cmd="$RSYNC $RSYNC_OPTIONS ${DEBIAN_IGNORE[*]} rsync://ftp.ca.debian.org/debian/ $DESTPATH/debian"
+    cmd="$RSYNC $RSYNC_OPTIONS --exclude-from=$DEBIAN_EXCLUDEFILE rsync://ftp.ca.debian.org/debian/ $DESTPATH/debian"
     echo "$cmd" && sleep 2
     $cmd
 
