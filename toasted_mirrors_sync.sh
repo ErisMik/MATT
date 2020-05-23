@@ -13,8 +13,8 @@ LOG_PREFIX="Toasted Mirrors:"
 fixpermissions() {
     echo "$LOG_PREFIX Fix file permissions"
 
-    find "$DESTPATH" -path "$DESTPATH/aur" -prune -o -type d -exec chmod 775 {} \;
-    find "$DESTPATH" -path "$DESTPATH/aur" -prune -o -type f -exec chmod 644 {} \;
+    find "$DESTPATH" -type d -exec chmod 775 {} \;
+    find "$DESTPATH" -type f -exec chmod 644 {} \;
 }
 
 synchronize() {
