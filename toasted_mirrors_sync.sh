@@ -13,8 +13,8 @@ LOG_PREFIX="Toasted Mirrors:"
 fixpermissions() {
     echo "$LOG_PREFIX Fix file permissions"
 
-    find "$DESTPATH" -type d -exec chmod 775 {} \;
-    find "$DESTPATH" -type f -exec chmod 644 {} \;
+    find "$DESTPATH" -path "$DESTPATH/aur" -prune -o -type d -exec chmod 775 {} \;
+    find "$DESTPATH" -path "$DESTPATH/aur" -prune -o -type f -exec chmod 644 {} \;
 }
 
 synchronize() {
@@ -40,6 +40,11 @@ synchronize() {
 
     echo "$LOG_PREFIX Debian Sync"
     cmd="$RSYNC $RSYNC_OPTIONS --exclude-from=$DEBIAN_EXCLUDEFILE rsync://ftp.ca.debian.org/debian/ $DESTPATH/debian"
+    echo "$cmd" && sleep 2
+    $cmd
+
+    echo "$LOG_PREFIX AUR Sync"
+    cmd="/etc/matt/aursync.sh $DESTPATH/aur"
     echo "$cmd" && sleep 2
     $cmd
 
