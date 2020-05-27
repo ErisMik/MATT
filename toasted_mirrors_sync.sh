@@ -43,10 +43,11 @@ synchronize() {
     echo "$cmd" && sleep 2
     $cmd
 
-    echo "$LOG_PREFIX AUR Sync"
-    cmd="/etc/matt/aursync.sh $DESTPATH/aur"
-    echo "$cmd" && sleep 2
-    $cmd
+    # Currently under testing, do not use yet
+    # echo "$LOG_PREFIX AUR Sync"
+    # cmd="/etc/matt/aursync.sh $DESTPATH/aur"
+    # echo "$cmd" && sleep 2
+    # $cmd
 
     # Only need to run this every so often
     (( RANDOM % 6 == 0 )) && fixpermissions
