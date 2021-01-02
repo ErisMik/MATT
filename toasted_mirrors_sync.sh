@@ -19,7 +19,7 @@ fixpermissions() {
 
 synchronize() {
     echo "$LOG_PREFIX Manjaro sync"
-    cmd="$RSYNC $RSYNC_OPTIONS rsync://ftp.tsukuba.wide.ad.jp/manjaro/ $DESTPATH/manjaro"
+    cmd="$RSYNC $RSYNC_OPTIONS rsync://mirror.csclub.uwaterloo.ca/manjaro/ $DESTPATH/manjaro"
     echo "$cmd" && sleep 2
     $cmd
 
