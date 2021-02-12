@@ -18,7 +18,7 @@ FROM nginx:latest
 RUN mkdir -p /matt
 WORKDIR /matt
 
-RUN apt-get update && apt-get install -y supervisor
+RUN apt-get update && apt-get install -y supervisor rsync
 
 RUN rm -rf /usr/share/nginx/html/index.html
 COPY nginx.conf /etc/nginx/
