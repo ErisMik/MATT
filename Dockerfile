@@ -1,21 +1,32 @@
 # Mirror All The Things Dockerfile
 
-FROM nginx:latest
-LABEL maintainer "Eric Mikulin"
+#### Rust Builder Image ####
+FROM rust:latest AS rustbuild
 
-RUN apt-get update -y && apt-get install -y rsync cron vim git parallel wget curl
+RUN mkdir -p /matt
+WORKDIR /matt
+
+COPY Cargo.toml .
+COPY src/ src/
+
+RUN cargo build --release
+
+
+#### Runtime Image ####
+FROM nginx:latest
+
+RUN mkdir -p /matt
+WORKDIR /matt
+
+RUN apt-get update && apt-get install -y supervisor
 
 RUN rm -rf /usr/share/nginx/html/index.html
-
 COPY nginx.conf /etc/nginx/
-
-RUN mkdir -p /etc/matt
-COPY debian_exclude.txt /etc/matt/
-COPY aursync.sh /etc/matt/
-
-COPY toasted_mirrors_sync.sh /etc/cron.hourly/toasted_mirrors_sync
-COPY entrypoint.sh /
+COPY supervisord.conf .
+COPY --from=rustbuild /matt/target/release/matt .
 
 VOLUME /usr/share/nginx/html/mirrors
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+VOLUME /matt/config
+EXPOSE 80
+
+CMD ["supervisord", "-c", "/matt/supervisord.conf"]
