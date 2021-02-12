@@ -13,7 +13,7 @@ docker buildx use mubuilder
 docker buildx inspect --bootstrap
 
 # Build and push images
-docker buildx build . -t itseris/matt --push --platform "linux/amd64,linux/arm64,linux/arm/v7"
+docker buildx build . -t itseris/matt --push --platform "linux/amd64,linux/arm64"
 
 # Cleanup
-# docker buildx rm mubuilder
+docker buildx rm mubuilder
