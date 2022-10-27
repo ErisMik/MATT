@@ -1,15 +1,8 @@
-extern crate clap;
-extern crate clokwerk;
-extern crate config;
-extern crate reqwest;
-extern crate retry;
-
-#[macro_use]
-extern crate serde_derive;
-
-use clap::{App, Arg};
+use chrono;
+use clap::{arg, command};
 use clokwerk::{Scheduler, TimeUnits};
 use retry::{delay, retry};
+use serde_derive::Deserialize;
 use std::collections::HashMap;
 use std::process::Command;
 use std::thread;
@@ -33,7 +26,7 @@ struct Settings {
 
 impl Settings {
     fn new(config: config::Config) -> Result<Self, config::ConfigError> {
-        config.try_into()
+        config.try_deserialize()
     }
 }
 
@@ -56,7 +49,7 @@ fn sync_repo(repo: Repo, name: String, destpath: String, opts: Vec<String>) {
     command.arg(format!("{}/{}", destpath, name));
 
     println!("Syncing {} with command {:?}", name, command);
-    let result = retry(delay::Fixed::from_millis(300000).take(5), || {
+    let result = retry(delay::Fixed::from_millis(5 * 60 * 1000).take(5), || {
         let mut child = command.spawn().expect("Command failed to start");
         let result = child.wait().unwrap();
 
@@ -71,36 +64,25 @@ fn sync_repo(repo: Repo, name: String, destpath: String, opts: Vec<String>) {
         Ok(return_code) => {
             reqwest::blocking::get(&format!("{}/{}", base_url, return_code)).unwrap()
         }
-        Err(error) => match error {
-            retry::Error::Operation { error, .. } => {
-                reqwest::blocking::get(&format!("{}/{}", base_url, error)).unwrap()
-            }
-            _ => reqwest::blocking::get(&format!("{}/{}", base_url, "fail")).unwrap(),
-        },
+        Err(return_code) => {
+            reqwest::blocking::get(&format!("{}/{}", base_url, return_code)).unwrap()
+        }
     };
 }
 
 fn main() {
-    let matches = App::new("Mirror All The Things")
-        .arg(
-            Arg::with_name("config")
-                .short("c")
-                .long("config")
-                .value_name("FILE")
-                .help("Sets a custom config file")
-                .default_value("matt.toml")
-                .takes_value(true),
-        )
+    let matches = command!()
+        .arg(arg!(-c --config <FILE> "Sets a custom config file").default_value("matt.toml"))
         .get_matches();
 
-    let config_filename = matches.value_of("config").unwrap();
-    let mut config = config::Config::new();
-    config
-        .merge(config::File::with_name(config_filename))
+    let config_filename = matches.get_one::<String>("config").unwrap();
+    let config = config::Config::builder()
+        .add_source(config::File::with_name(config_filename))
+        .build()
         .unwrap();
     let settings = Settings::new(config).unwrap();
 
-    let mut scheduler = Scheduler::new();
+    let mut scheduler = Scheduler::with_tz(chrono::Utc);
 
     for (name, repo) in settings.repos.iter() {
         let name = name.clone();
@@ -109,7 +91,8 @@ fn main() {
         let opts = settings.rsync_opts.clone();
 
         scheduler
-            .every(1.hour())
+            .every(1.day())
+            .at("08:47:12")
             .run(move || sync_repo(repo.clone(), name.clone(), destpath.clone(), opts.clone()));
     }
 
